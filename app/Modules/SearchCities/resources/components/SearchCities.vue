@@ -43,10 +43,6 @@ export default {
         ...mapActions({
         }),
     },
-    mounted() {
-
-    }
-
 }
 
 </script>

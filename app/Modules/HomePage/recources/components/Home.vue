@@ -1,6 +1,6 @@
 <template>
     <div class="container" style="background-color: #f0f0f0; height: 100vh;">
-<!--    <NavBar></NavBar>-->
+    <NavBar></NavBar>
     <SearchCities></SearchCities>
     </div>
 
