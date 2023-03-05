@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\SearchCities\src\Controllers\SearchCitiesController;
+use App\Modules\Words\src\Controllers\WordsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,5 +18,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('', function () {
     return view('welcome');
 });
+Route::get('/addWords', function () {
+    return view('welcome');
+});
+Route::get('/allWords', function () {
+    return view('welcome');
+});
 
 Route::get('/searchCities', [SearchCitiesController::class, 'searchCity']);
+
+Route::get('/getWords', [WordsController::class, 'getWords']);
+Route::post('/saveWords', [WordsController::class, 'saveWords']);

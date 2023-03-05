@@ -9,6 +9,7 @@
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 
         <!-- Styles -->
         <style>
@@ -22,9 +23,11 @@
         </style>
     </head>
     <body class="antialiased">
-    <div id="app">
-        <p>
+    <div id="app" style="margin: 0; padding: 0">
+        <p style="padding: 0; margin: 0">
             <router-link to="/"></router-link>
+            <router-link to="/addWords"></router-link>
+            <router-link to="/allWords"></router-link>
         </p>
         <router-view></router-view>
     </div>
@@ -35,12 +38,58 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 
 </html>
 
 <style>
-    /*body {*/
-    /*    margin: 0;*/
-    /*    !*border: 1 px solid black;*!*/
-    /*}*/
+    .next-btn{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .container{
+        position: absolute;
+        background-color: #f2f2f2;
+        margin-left: auto;
+        margin-right: auto;
+        left: 0;
+        right: 0;
+        text-align: center;
+        height: 100vh;
+        box-shadow: 0 0 10px 10px #f6f6f6;
+        /*background: lightcyan;*/
+        z-index: -15;
+    }
+    .btn-secondary:not(:disabled):not(.disabled).active, .btn-secondary:not(:disabled):not(.disabled):active, .show>.btn-secondary{
+        background-color: black;
+    }
+    .btn {
+        --bs-btn-line-height: 40px;
+    }
+    div.successful {
+        color: black;
+        font-weight: 700;
+        margin-bottom: 30px;
+        position: relative;
+        animation: showLeft 1s;
+        z-index: 1;
+    }
+    @keyframes showLeft {
+        from {left:-100%;}
+        to {left:0;}
+    }
+    @keyframes showRight {
+        from {right:-100%;}
+        to {right:0;}
+    }
+
+    .h-text{
+        animation: show 2s;
+    }
+
+    @keyframes show {
+
+        from {opacity: 0;} to {opacity: 1;}
+    }
 </style>

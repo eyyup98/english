@@ -3,11 +3,14 @@ require('./bootstrap');
 import {createApp} from "vue";
 import * as VueRouter from 'vue-router'
 
+import AddWords from "../../app/Modules/Words/resources/components/AddWords";
 import Home from "../../app/Modules/HomePage/recources/components/Home"
+import AllWords from "../../app/Modules/Words/resources/components/AllWords";
 
 const routes = [
     {path: '/', component: Home},
-    // {path: '/example', component: Navbar}
+    {path: '/addWords', component: AddWords},
+    {path: '/allWords', component: AllWords},
 ]
 
 const router = VueRouter.createRouter({
