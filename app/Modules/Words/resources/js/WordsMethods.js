@@ -10,11 +10,10 @@ export const words = new Vuex.Store({
         lists: []
     },
     actions: {
-        fetchWords({state, commit}){
+        fetchWords({state, commit}, search = null){
             return axios.get('/getWords', {
                 params: {
-                    choice: 'this.choiceBtn',
-                    eventBtn: 'this.eventBtn'
+                    search: search
                 }
             }).then((response) => {
                 commit('setWords',response.data);
@@ -29,6 +28,29 @@ export const words = new Vuex.Store({
             }).catch((error) => {
                 console.log(error)
             })
+        },
+        deleteWord({state, commit}, deleteId){
+            return axios.post('/deleteWord', {
+                deleteId: deleteId,
+            }).catch((error) => {
+                console.log(error)
+            })
+        },
+        saveOneWord({state, commit}, data){
+            let result = false
+            return axios.put('/saveOneWord', {
+                word_id: data.word_id,
+                in_english: data.in_english,
+                in_russia: data.in_russia,
+                transcription: data.transcription,
+            }).then((response) => {
+                result = 'true'
+                return result
+            }).catch((error) => {
+                console.log(error)
+                result = 'false'
+                return result
+            })
         }
     },
     mutations: {
@@ -38,7 +60,6 @@ export const words = new Vuex.Store({
     },
     getters: {
         getWords(state){
-            console.log('gett')
             return state.words;
         }
     }

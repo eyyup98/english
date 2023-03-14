@@ -8,13 +8,22 @@ use App\Http\Controllers\Controller;
 use App\Models\Words;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class WordsController extends Controller
 {
+    public function __construct()
+    {
+        date_default_timezone_set('Europe/Minsk');
+    }
+
     public function getWords(Request $request): JsonResponse
     {
-        $words = Words::all()->toArray();
+        if (!empty($request->search)) {
+            $words = Words::whereRaw("in_english LIKE '%$request->search%' OR in_russia LIKE '%$request->search%'")->get();
+        } else {
+            $words = Words::all()->toArray();
+        }
+
         return response()->json($words);
     }
 
@@ -25,19 +34,34 @@ class WordsController extends Controller
                 continue;
             }
 
-            $existEnglish = DB::table('words')->where('in_english', $request->in_english[$i])->first();
-            $existRussia = DB::table('words')->where('in_russia', $request->in_russia[$i])->first();
+            $existEnglish = Words::where('in_english', $request->in_english[$i])->first();
+            $existRussia = Words::where('in_russia', $request->in_russia[$i])->first();
 
             if(!empty($existEnglish) && !empty($existRussia)) {
                 continue;
             }
 
-            DB::table('words')->insert([
+            Words::create([
                 'in_english' => $request->in_english[$i],
                 'transcription' => $request->transcription[$i] ?? null,
                 'in_russia' => $request->in_russia[$i],
             ]);
         }
+        return response()->json();
+    }
+
+    public function saveOneWord(Request $request): JsonResponse
+    {
+        Words::where('word_id', $request->word_id)
+            ->update(['in_english' => $request->in_english, 'transcription' => $request->transcription, 'in_russia' => $request->in_russia,]);
+
+        return response()->json();
+    }
+
+    public function deleteWord(Request $request): JsonResponse
+    {
+        Words::where('word_id', $request->deleteId)->delete();
+
         return response()->json();
     }
 

@@ -7,15 +7,15 @@
         </div>
 
         <div class="input-block successful" v-if="viewInputs === true">
-            <div>
+            <div class="div-input">
                 <span class="span-input">Английский</span>
                 <textarea id="in_english" class="flex-input" v-model="in_english"></textarea>
             </div>
-            <div>
+            <div class="div-input">
                 <span class="span-input">Транскрипция</span>
                 <textarea id="transcription" class="flex-input" v-model="transcription"></textarea>
             </div>
-            <div>
+            <div class="div-input">
                 <span class="span-input">Русский</span>
                 <textarea id="in_russia" class="flex-input" v-model="in_russia"></textarea>
             </div>
@@ -106,18 +106,50 @@ export default {
     display: flex;
     font-size: 28px;
     padding: 0 50px;
+    justify-content:space-between;
+    /*max-width: 200px;*/
+    /*flex-wrap: wrap;*/
 }
 .flex-input{
-    flex: 0 1 33.333%;
     border: #dddcdc solid 1px;
-    height: 500px;
-    border-bottom: 3px solid #2d3748;
+    height: 70vh;
+    border-bottom: 2px solid #2d3748;
     text-align: left;
+    max-width: 100%;
 }
 .span-input{
     color: #2d3748;
 }
 .successful {
     transition: 3s;
+}
+.div-input{
+    max-width: 30%;
+    flex: 0 1 33.333%;
+}
+@media screen and (max-width: 995px) {
+    .input-block{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content:flex-start;
+        font-size: 22px;
+        padding: 0 10px;
+    }
+    .flex-input{
+        height: 50vh;
+    }
+    .div-input{
+        flex: none;
+        max-width: 33.33%;
+    }
+    .container{
+        min-width: 100%;
+    }
+}
+
+@media screen and (max-width: 995px) {
+    .input-block{
+        font-size: 16px;
+    }
 }
 </style>

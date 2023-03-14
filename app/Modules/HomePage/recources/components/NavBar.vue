@@ -17,22 +17,62 @@
                     <router-link class="nav-link" to="/allWords">Список слов</router-link>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
+            <div class="form-inline my-2 my-lg-0">
+                <x-field>
+                    <input class="form-control mr-sm-2" type="search"
+                           placeholder="Поиск" aria-label="Search" v-model="search" v-on:keyup.enter="searchBtn">
+                    <span class="close" @click="clearSearch" v-if="search !== null && search !== ''">&times;</span>
+                </x-field>
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" @click="searchBtn">Поиск слов</button>
+                <div class="list-group search-param" v-if="lists !== null || lists !== ''">
+                    <i class="list-group-item list-group-item-action"
+                       v-for="(row, index) in lists">{{row.in_english}}</i>
+                </div>
+            </div>
         </div>
     </nav>
 </template>
 
 <script>
+import {words} from "../../../Words/resources/js/WordsMethods"
+
 export default {
-    name: "NavBar"
+    name: "NavBar",
+    data(){
+        return {
+            search: null,
+            lists: null,
+        }
+    },
+    methods: {
+        clearSearch(){
+            this.search = ''
+            this.lists = null
+        },
+        async searchBtn() {
+            if (this.search !== null && this.search !== '') {
+                await words.dispatch('fetchWords', this.search)
+                this.lists = words.getters.getWords
+            } else {
+                this.lists = null
+            }
+        },
+    }
 }
 </script>
 
 <style scoped>
 .pad{
     padding: 10px 10%;
+}
+.search-param{
+    position: absolute;
+    top: 60px;
+    min-width: 17%;
+}
+@media screen and (max-width: 580px) {
+    .btn{
+        margin: 0 0 0 10px;
+    }
 }
 </style>

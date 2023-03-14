@@ -2,6 +2,7 @@ require('./bootstrap');
 
 import {createApp} from "vue";
 import * as VueRouter from 'vue-router'
+// import PortalVue from 'portal-vue'
 
 import AddWords from "../../app/Modules/Words/resources/components/AddWords";
 import Home from "../../app/Modules/HomePage/recources/components/Home"
@@ -21,6 +22,7 @@ const router = VueRouter.createRouter({
 const app = createApp({})
 
 app.use(router)
+// app.use(PortalVue)
 
 app.component('home', Home)
 
