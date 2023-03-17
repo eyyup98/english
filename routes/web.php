@@ -28,6 +28,7 @@ Route::get('/allWords', function () {
 Route::get('/searchCities', [SearchCitiesController::class, 'searchCity']);
 
 Route::get('/getWords', [WordsController::class, 'getWords']);
+Route::get('/getTypes', [WordsController::class, 'getTypes']);
 Route::post('/saveWords', [WordsController::class, 'saveWords']);
 Route::post('/deleteWord', [WordsController::class, 'deleteWord']);
 Route::put('/saveOneWord', [WordsController::class, 'saveOneWord']);

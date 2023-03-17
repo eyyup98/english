@@ -32,10 +32,12 @@
             <table class="table table-success table-striped table-hover params">
                 <thead class="table-dark sticky" >
                     <tr>
-                        <th scope="col">Английский</th>
+                        <th scope="col" class="text width">Английский</th>
                         <th scope="col">Транскрипция/Доп.инф.</th>
-                        <th scope="col">Русский</th>
-                        <th scope="col">Действия</th>
+                        <th scope="col" class="text width">Русский</th>
+                        <th scope="col" class="text">Тип</th>
+                        <th scope="col" class="text">Показывать</th>
+                        <th scope="col" class="text">Действия</th>
                     </tr>
                 </thead>
                 <tbody class="table-body" v-for="(row, index) in lists">
@@ -48,6 +50,21 @@
 
                         <th v-if="count[index].status_show === 'show'">{{ row.in_russia }}</th>
                         <th v-else><input class="form-control" v-model="row.in_russia"></th>
+
+                        <th v-if="count[index].status_show === 'show'">{{ row.name }}</th>
+                        <th v-else>
+                            <select class="form-control form-inline" v-model="row.word_type_id">
+                                <option v-for="item in types" :value="item.word_type_id">{{item.name}}</option>
+                            </select>
+                        </th>
+
+                        <th v-if="row.is_show === 1">
+                            <i class="bi-check-circle hover" aria-label="Mute" @dblclick="saveBtn(index, true)"></i>
+                        </th>
+
+                        <th v-else>
+                            <i class="bi-x-circle hover" aria-label="Mute" @dblclick="saveBtn(index, true)"></i>
+                        </th>
 
                         <th v-if="count[index].status_show === 'show'">
                             <i class="bi-pencil-fill hover" aria-label="Mute" @click="editBtn(index)"></i>
@@ -81,6 +98,7 @@ export default {
             search: null,
             deleteId: null,
             myModal: null,
+            types: null,
         }
     },
     methods:{
@@ -104,11 +122,20 @@ export default {
                 this.count[i].status_show = 'show'
             }
         },
-        saveBtn(index) {
-            words.dispatch('saveOneWord', this.lists[index])
+        async saveBtn(index, changeShow = false) {
+            if (changeShow === true){
+                if (this.lists[index].is_show === 1) {
+                    this.lists[index].is_show = 0
+                } else {
+                    this.lists[index].is_show = 1
+                }
+            }
+
+            await words.dispatch('saveOneWord', this.lists[index])
             for (let i = 0; i < this.lists.length; i++) {
                 this.count[i].status_show = 'show'
             }
+            await this.getData()
         },
         deleteBtn(index) {
             this.deleteId = index
@@ -118,23 +145,38 @@ export default {
             this.myModal.show()
         },
         async getData(){
-            await words.dispatch('fetchWords', this.search)
+            let data = {
+                search: this.search,
+                uri: 'allWords'
+            }
+            await words.dispatch('fetchWords', data)
             this.lists = words.getters.getWords
 
             for (let i = 0; i < this.lists.length; i++) {
                 this.count.push({status_show: 'show'})
             }
         },
+        async getTypes(){
+            await words.dispatch('fetchTypes')
+            this.types = words.getters.getTypes
+            console.log('this.types')
+            console.log(this.types)
+        },
     },
     mounted() {
         this.getData()
+        this.getTypes()
     }
 }
 </script>
 
 <style scoped>
+.text{
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
 .params{
-    max-width: 90%;
+    max-width: 100%;
     margin: 0 auto;
 }
 .table-body{
@@ -157,6 +199,9 @@ export default {
 }
 .hover:hover{
     color: #3c9db4;
+}
+.width{
+    width: 30%;
 }
 .search{
     display:flex;

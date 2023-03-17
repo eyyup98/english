@@ -25,8 +25,9 @@
                 </x-field>
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit" @click="searchBtn">Поиск слов</button>
                 <div class="list-group search-param" v-if="lists !== null || lists !== ''">
-                    <i class="list-group-item list-group-item-action"
-                       v-for="(row, index) in lists">{{row.in_english}}</i>
+                    <dl class="list-group-item list-group-item-action" v-for="(row, index) in lists">
+                        <dt>{{row.in_english}} - {{row.in_russia}}</dt>
+                    </dl>
                 </div>
             </div>
         </div>
@@ -51,7 +52,12 @@ export default {
         },
         async searchBtn() {
             if (this.search !== null && this.search !== '') {
-                await words.dispatch('fetchWords', this.search)
+                let data = {
+                    search: this.search,
+                    uri: 'navBar'
+                }
+
+                await words.dispatch('fetchWords', data)
                 this.lists = words.getters.getWords
             } else {
                 this.lists = null
@@ -67,8 +73,18 @@ export default {
 }
 .search-param{
     position: absolute;
-    top: 60px;
+    top: 65px;
     min-width: 17%;
+    max-width: 30%;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+@media screen and (max-width: 990px) {
+    .search-param{
+        max-width: 225px;
+        max-height: 18vh;
+        top: 55px;
+    }
 }
 @media screen and (max-width: 580px) {
     .btn{

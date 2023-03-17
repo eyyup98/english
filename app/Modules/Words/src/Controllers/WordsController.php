@@ -6,6 +6,7 @@ namespace App\Modules\Words\src\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Words;
+use App\Models\WordsTypes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,13 +19,20 @@ class WordsController extends Controller
 
     public function getWords(Request $request): JsonResponse
     {
-        if (!empty($request->search)) {
-            $words = Words::whereRaw("in_english LIKE '%$request->search%' OR in_russia LIKE '%$request->search%'")->get();
-        } else {
-            $words = Words::all()->toArray();
+        $data = json_decode($request->data);
+        $words = Words::join('words_types as wt', 'wt.word_type_id', 'words.word_type_id');
+        if (!empty($data->search)) {
+            $words = $words->whereRaw("in_english LIKE '%$data->search%' OR in_russia LIKE '%$data->search%'");
+        } elseif (empty($data->uri)) {
+            $words = $words->where('is_show', 1);
         }
-
+        $words = $words->get();
         return response()->json($words);
+    }
+
+    public function getTypes(): JsonResponse
+    {
+        return response()->json(WordsTypes::all());
     }
 
     public function saveWords(Request $request): JsonResponse
@@ -52,8 +60,15 @@ class WordsController extends Controller
 
     public function saveOneWord(Request $request): JsonResponse
     {
+        print_r($request->all());
         Words::where('word_id', $request->word_id)
-            ->update(['in_english' => $request->in_english, 'transcription' => $request->transcription, 'in_russia' => $request->in_russia,]);
+            ->update([
+                'in_english' => $request->in_english,
+                'transcription' => $request->transcription,
+                'in_russia' => $request->in_russia,
+                'word_type_id' => $request->word_type_id,
+                'is_show' => $request->is_show,
+                ]);
 
         return response()->json();
     }
