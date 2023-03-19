@@ -28,15 +28,16 @@
             </x-field>
             <button class="btn btn-dark" type="submit" @click="getData">Поиск слов</button>
         </div>
+
         <div class="div-table">
             <table class="table table-success table-striped table-hover params">
                 <thead class="table-dark sticky" >
                     <tr>
-                        <th scope="col" class="text width">Английский</th>
-                        <th scope="col">Транскрипция/Доп.инф.</th>
-                        <th scope="col" class="text width">Русский</th>
-                        <th scope="col" class="text">Тип</th>
-                        <th scope="col" class="text">Показывать</th>
+                        <th id="in_english" @click="sortMethod('in_english')" scope="col" class="text width">Английский</th>
+                        <th id="transcription" @click="sortMethod('transcription')" scope="col">Транскрипция/Доп.инф.</th>
+                        <th id="in_russia" @click="sortMethod('in_russia')" scope="col" class="text width">Русский</th>
+                        <th id="word_type_id" @click="sortMethod('word_type_id')" scope="col" class="text">Тип</th>
+                        <th id="is_show" @click="sortMethod('is_show')" scope="col" class="text">Показывать</th>
                         <th scope="col" class="text">Действия</th>
                     </tr>
                 </thead>
@@ -99,9 +100,36 @@ export default {
             deleteId: null,
             myModal: null,
             types: null,
+            sortList: [],
         }
     },
     methods:{
+        sortMethod(setSort){
+            let flag = false
+            for (const sortKey in this.sortList) {
+                if (this.sortList[sortKey].sort === setSort) {
+                    flag = true
+                    if (this.sortList[sortKey].sParam === 'asc') {
+                        this.sortList[sortKey].sParam = 'desc'
+                        document.getElementById(setSort).className = document.getElementById(setSort).className.replace(' asc', '')
+                        document.getElementById(setSort).className += ' desc'
+                    } else if (this.sortList[sortKey].sParam === 'desc') {
+                        this.sortList.splice(sortKey, 1)
+                        document.getElementById(setSort).className = document.getElementById(setSort).className.replace(' desc', '')
+                        document.getElementById(setSort).className += ' delete'
+                        document.getElementById(setSort).className = document.getElementById(setSort).className.replace(' delete', '')
+                    }
+                }
+            }
+
+            if (!flag) {
+                document.getElementById(setSort).className += ' asc'
+                this.sortList.push({sort: setSort, sParam: 'asc'})
+            }
+
+            console.log(this.sortList)
+            this.getData()
+        },
         clearSearch(){
             this.search = ''
             this.getData()
@@ -147,7 +175,8 @@ export default {
         async getData(){
             let data = {
                 search: this.search,
-                uri: 'allWords'
+                uri: 'allWords',
+                sort: this.sortList
             }
             await words.dispatch('fetchWords', data)
             this.lists = words.getters.getWords
@@ -171,6 +200,39 @@ export default {
 </script>
 
 <style scoped>
+.div-table{
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.div-table table {
+    border-collapse: collapse;
+}
+
+.div-table th{
+    text-align: center;
+    border: 1px solid
+    #454444;
+}
+
+.asc::after {
+    color: #acdecf;
+    margin: 0 0 0 10px;
+    content: "▼"
+}
+
+.desc::after {
+    color: #acdecf;
+    margin: 0 0 0 10px;
+    content: "▲"
+}
+
+.delete::after {
+    color: #acdecf;
+    margin: 0 0 0 10px;
+    content: ""
+}
+
 .text{
     padding-bottom: 20px;
     padding-top: 20px;

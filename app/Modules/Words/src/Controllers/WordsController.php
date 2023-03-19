@@ -23,9 +23,18 @@ class WordsController extends Controller
         $words = Words::join('words_types as wt', 'wt.word_type_id', 'words.word_type_id');
         if (!empty($data->search)) {
             $words = $words->whereRaw("in_english LIKE '%$data->search%' OR in_russia LIKE '%$data->search%'");
-        } elseif (empty($data->uri)) {
-            $words = $words->where('is_show', 1);
+        } elseif (!empty($data->uri) && $data->uri == 'allWords' && empty($data->sort)) {
+            $words = $words->orderBy('in_english');
+        } elseif(empty($data->uri)) {
+            $words = $words->where('is_show', 1)->inRandomOrder();
         }
+
+        if (!empty($data->sort)) {
+            foreach ($data->sort as $sort) {
+                $words = $words->orderBy($sort->sort, $sort->sParam);
+            }
+        }
+
         $words = $words->get();
         return response()->json($words);
     }
