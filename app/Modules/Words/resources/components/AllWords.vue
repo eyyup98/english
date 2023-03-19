@@ -127,7 +127,6 @@ export default {
                 this.sortList.push({sort: setSort, sParam: 'asc'})
             }
 
-            console.log(this.sortList)
             this.getData()
         },
         clearSearch(){
@@ -188,8 +187,6 @@ export default {
         async getTypes(){
             await words.dispatch('fetchTypes')
             this.types = words.getters.getTypes
-            console.log('this.types')
-            console.log(this.types)
         },
     },
     mounted() {
@@ -210,9 +207,7 @@ export default {
 }
 
 .div-table th{
-    text-align: center;
-    border: 1px solid
-    #454444;
+    border: 1px solid #454444;
 }
 
 .asc::after {

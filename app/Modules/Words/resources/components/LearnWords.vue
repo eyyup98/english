@@ -15,11 +15,23 @@
         </div>
         <div class="choiceType">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-secondary" @click="checkedEvent" v-on:click="eventBtn = 'begin'">
+                <label class="btn btn-secondary" v-on:click="eventBtn = 'begin'" @click="checkedEvent">
                     <input type="radio" name="event" id="begin" autocomplete="off"> Начать
                 </label>
-                <label class="btn btn-secondary" v-on:click="eventBtn = 'end'">
+                <label class="btn btn-secondary" v-on:click="eventBtn = 'end'" @click="checkedEvent">
                     <input type="radio" name="event" id="end" autocomplete="off"> Закончить
+                </label>
+            </div>
+
+            <div class="btn-group btn-group-toggle btn-m" data-toggle="buttons">
+                <label class="btn btn-secondary active" @click="typeWords = 1">
+                    <input type="radio" name="options" id="words" autocomplete="off" :disabled="eventBtn === 'begin'"> Слова
+                </label>
+                <label class="btn btn-secondary" @click="typeWords = 2">
+                    <input type="radio" name="options" id="expressions" autocomplete="off" :disabled="eventBtn === 'begin'"> Выражения
+                </label>
+                <label class="btn btn-secondary" @click="typeWords = 3">
+                    <input type="radio" name="options" id="rules" autocomplete="off" :disabled="eventBtn === 'begin'"> Правила
                 </label>
             </div>
         </div>
@@ -34,8 +46,18 @@
             </button>
         </div>
 
+        <div id="end-learn" class="get-word successful">
+            <span class="end-text h-text">Поздравляю вы закончили!</span>
+        </div>
+
         <div class="next-btn" v-if="eventBtn === 'begin'">
-            <button type="button" class="btn btn-dark" @click="nextWord">Следующее слово</button>
+            <button type="button" class="btn btn-dark" @click="printFrequency(0)" v-if="word.is_frequency === 1">
+                Выводить реже
+            </button>
+            <button type="button" class="btn btn-dark" @click="printFrequency(1)" v-if="word.is_frequency === 0">
+                Выводить чаще
+            </button>
+            <button type="button" class="btn btn-dark btn-m" @click="nextWord">Следующее слово</button>
         </div>
     </div>
 </template>
@@ -52,10 +74,15 @@ export default {
             lists: [],
             rand: null,
             word: null,
-            language: null
+            language: null,
+            typeWords: 1,
         }
     },
     methods:{
+        printFrequency(value){
+            this.word.is_frequency = value
+            words.dispatch('saveOneWord', this.word)
+        },
         changeLanguage(){
             if (this.language === 'russia') {
                 this.language = 'english'
@@ -63,7 +90,27 @@ export default {
                 this.language = 'russia'
             }
         },
-        checkedEvent(){
+        nullWord(){
+            this.word = {
+                is_frequency: null,
+                in_english: '',
+                transcription: '',
+                in_russia: '',
+            }
+        },
+        async checkedEvent(){
+            document.getElementById('end-learn').style.display = 'none'
+            this.nullWord()
+            if (this.eventBtn === 'end') {
+                this.lists = []
+                return
+            }
+
+            let data = {
+                uri: 'learnWords',
+                typeWords: this.typeWords
+            }
+            await words.dispatch('fetchWords', data)
             this.lists = words.getters.getWords
             this.printWord()
         },
@@ -83,18 +130,33 @@ export default {
                 this.language = 'english'
             } else this.language = 'russia'
 
+            this.nullWord()
 
-            this.rand = Math.floor(Math.random() * this.lists.length);
-            this.word = this.lists[this.rand]
+            if (this.lists.length === 0) {
+                this.eventBtn = 'end'
+                document.getElementById('end-learn').style.display = 'block'
+                return
+            }
+
+            if (this.lists[0].is_frequency === 0) {
+                this.rand = Math.floor(Math.random() * this.lists.length);
+                this.word = this.lists[this.rand]
+            } else {
+                this.rand = 0
+                this.word = this.lists[0]
+            }
         }
     },
     mounted() {
-        words.dispatch('fetchWords')
+        document.getElementById('end-learn').style.display = 'none'
     }
 }
 </script>
 
 <style scoped>
+.btn-m{
+    margin: 0 0 0 5%;
+}
 .choiceType{
     margin: 30px auto 0;
     width: 100%;
@@ -102,7 +164,7 @@ export default {
     justify-content: center;
 }
 .get-word {
-    margin: 50px auto;
+    margin: 8% auto;
     display: flex;
     justify-content: center;
     align-items:center;
@@ -119,6 +181,9 @@ export default {
     padding: 20px;
     flex-direction:column;
     box-shadow: 0 0 10px 10px #93eae7;
+}
+.end-text{
+    font-size: 48px;
 }
 .input-word:hover+ .input-word{
      opacity:0;

@@ -25,14 +25,18 @@ class WordsController extends Controller
             $words = $words->whereRaw("in_english LIKE '%$data->search%' OR in_russia LIKE '%$data->search%'");
         } elseif (!empty($data->uri) && $data->uri == 'allWords' && empty($data->sort)) {
             $words = $words->orderBy('in_english');
-        } elseif(empty($data->uri)) {
-            $words = $words->where('is_show', 1)->inRandomOrder();
+        } elseif(!empty($data->uri) && $data->uri == 'learnWords') {
+            $words = $words->where('is_show', 1)->orderBy('is_frequency', 'desc')->inRandomOrder();
         }
 
         if (!empty($data->sort)) {
             foreach ($data->sort as $sort) {
                 $words = $words->orderBy($sort->sort, $sort->sParam);
             }
+        }
+
+        if (!empty($data->typeWords)) {
+            $words = $words->where('words.word_type_id', $data->typeWords);
         }
 
         $words = $words->get();
@@ -69,7 +73,6 @@ class WordsController extends Controller
 
     public function saveOneWord(Request $request): JsonResponse
     {
-        print_r($request->all());
         Words::where('word_id', $request->word_id)
             ->update([
                 'in_english' => $request->in_english,
@@ -77,6 +80,7 @@ class WordsController extends Controller
                 'in_russia' => $request->in_russia,
                 'word_type_id' => $request->word_type_id,
                 'is_show' => $request->is_show,
+                'is_frequency' => $request->is_frequency,
                 ]);
 
         return response()->json();

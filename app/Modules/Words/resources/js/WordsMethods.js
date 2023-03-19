@@ -56,6 +56,7 @@ export const words = new Vuex.Store({
                 transcription: data.transcription,
                 word_type_id: data.word_type_id,
                 is_show: data.is_show,
+                is_frequency: data.is_frequency,
             }).then((response) => {
                 result = 'true'
                 return result
