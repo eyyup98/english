@@ -33,11 +33,11 @@
             <table class="table table-success table-striped table-hover params">
                 <thead class="table-dark sticky" >
                     <tr>
-                        <th id="in_english" @click="sortMethod('in_english')" scope="col" class="text width">Английский</th>
-                        <th id="transcription" @click="sortMethod('transcription')" scope="col">Транскрипция/Доп.инф.</th>
-                        <th id="in_russia" @click="sortMethod('in_russia')" scope="col" class="text width">Русский</th>
-                        <th id="word_type_id" @click="sortMethod('word_type_id')" scope="col" class="text">Тип</th>
-                        <th id="is_show" @click="sortMethod('is_show')" scope="col" class="text">Показывать</th>
+                        <th id="in_english" @click="sortMethod('in_english')" scope="col" class="text width delete">Английский</th>
+                        <th id="transcription" @click="sortMethod('transcription')" scope="col" class=" delete">Транскрипция/Доп.инф.</th>
+                        <th id="in_russia" @click="sortMethod('in_russia')" scope="col" class="text width delete">Русский</th>
+                        <th id="word_type_id" @click="sortMethod('word_type_id')" scope="col" class="text delete">Тип</th>
+                        <th id="is_show" @click="sortMethod('is_show')" scope="col" class="text delete">Показывать</th>
                         <th scope="col" class="text">Действия</th>
                     </tr>
                 </thead>
@@ -117,12 +117,12 @@ export default {
                         this.sortList.splice(sortKey, 1)
                         document.getElementById(setSort).className = document.getElementById(setSort).className.replace(' desc', '')
                         document.getElementById(setSort).className += ' delete'
-                        document.getElementById(setSort).className = document.getElementById(setSort).className.replace(' delete', '')
                     }
                 }
             }
 
             if (!flag) {
+                document.getElementById(setSort).className = document.getElementById(setSort).className.replace('delete', '')
                 document.getElementById(setSort).className += ' asc'
                 this.sortList.push({sort: setSort, sParam: 'asc'})
             }
@@ -223,9 +223,9 @@ export default {
 }
 
 .delete::after {
-    color: #acdecf;
+    color: #454449;
     margin: 0 0 0 10px;
-    content: ""
+    content: "↕"
 }
 
 .text{

@@ -11,6 +11,7 @@ export const words = new Vuex.Store({
         state: {
             types: null,
             words: null,
+            progress: null,
         }
     },
     actions: {
@@ -31,6 +32,13 @@ export const words = new Vuex.Store({
                     return response.data
                 })
         },
+        fetchProgress({state, commit}){
+            return axios.get('/getProgress')
+                .then((response) => {
+                    commit('setProgress',response.data);
+                    return response.data
+                })
+        },
         saveWords({state, commit}, data){
             return axios.post('/saveWords', {
                 in_english: data.in_english,
@@ -46,6 +54,9 @@ export const words = new Vuex.Store({
             }).catch((error) => {
                 console.log(error)
             })
+        },
+        clearProgress() {
+            return axios.get('/clearProgress')
         },
         saveOneWord({state, commit}, data){
             let result = false
@@ -65,7 +76,13 @@ export const words = new Vuex.Store({
                 result = 'false'
                 return result
             })
-        }
+        },
+        saveProgress({state, commit}, list){
+            console.log(list)
+            return axios.post('/saveProgress', {
+                data: list
+            })
+        },
     },
     mutations: {
         setWords(state, value){
@@ -73,6 +90,9 @@ export const words = new Vuex.Store({
         },
         setTypes(state, value){
             state.types = value
+        },
+        setProgress(state, value){
+            state.progress = value
         }
     },
     getters: {
@@ -81,6 +101,9 @@ export const words = new Vuex.Store({
         },
         getTypes(state){
             return state.types;
+        },
+        getProgress(state){
+            return state.progress;
         }
     }
 })

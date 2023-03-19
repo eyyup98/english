@@ -6,6 +6,7 @@ namespace App\Modules\Words\src\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Words;
+use App\Models\WordsProgress;
 use App\Models\WordsTypes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,16 +23,18 @@ class WordsController extends Controller
         $data = json_decode($request->data);
         $words = Words::join('words_types as wt', 'wt.word_type_id', 'words.word_type_id');
         if (!empty($data->search)) {
-            $words = $words->whereRaw("in_english LIKE '%$data->search%' OR in_russia LIKE '%$data->search%'");
+            $words = $words->whereRaw("words.in_english LIKE '%$data->search%' OR words.in_russia LIKE '%$data->search%'");
         } elseif (!empty($data->uri) && $data->uri == 'allWords' && empty($data->sort)) {
-            $words = $words->orderBy('in_english');
+            $words = $words->orderBy('words.in_english');
         } elseif(!empty($data->uri) && $data->uri == 'learnWords') {
-            $words = $words->where('is_show', 1)->orderBy('is_frequency', 'desc')->inRandomOrder();
+            $words = $words->join('words_progress as wp', 'wp.word_progress_id', 'words.word_id')
+                ->where('words.is_show', 1)->where('wp.word_progress_id', '!=', 'words.word_id')
+                ->orderBy('words.is_frequency', 'desc')->inRandomOrder();
         }
 
         if (!empty($data->sort)) {
             foreach ($data->sort as $sort) {
-                $words = $words->orderBy($sort->sort, $sort->sParam);
+                $words = $words->orderBy("words.$sort->sort", $sort->sParam);
             }
         }
 
@@ -43,9 +46,20 @@ class WordsController extends Controller
         return response()->json($words);
     }
 
+    public function getProgress(): JsonResponse
+    {
+        return response()->json(WordsProgress::all());
+    }
+
     public function getTypes(): JsonResponse
     {
         return response()->json(WordsTypes::all());
+    }
+
+    public function clearProgress(Request $request): bool
+    {
+        WordsProgress::truncate();
+        return true;
     }
 
     public function saveWords(Request $request): JsonResponse
@@ -84,6 +98,16 @@ class WordsController extends Controller
                 ]);
 
         return response()->json();
+    }
+
+    public function saveProgress(Request $request): bool
+    {
+        print_r($request->data);
+        foreach ($request->data as $value) {
+            WordsProgress::create(['word_progress_id' => $value]);
+        }
+
+        return true;
     }
 
     public function deleteWord(Request $request): JsonResponse

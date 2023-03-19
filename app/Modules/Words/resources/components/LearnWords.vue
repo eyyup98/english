@@ -1,4 +1,21 @@
 <template>
+    <div class="modal" tabindex="-1" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Начать заного</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Если вы начнете заного, тогда прошлый прогресс обнулится! Вы согласны на это?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                    <button type="button" class="btn btn-dark" v-on:click="eventBtn = 'begin'" @click="newBegin">Да</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="choiceType">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -12,18 +29,22 @@
                     <input type="radio" name="options" id="russia" autocomplete="off"> Русский
                 </label>
             </div>
-        </div>
-        <div class="choiceType">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-secondary" v-on:click="eventBtn = 'begin'" @click="checkedEvent">
+                <label class="btn btn-secondary" @click="checkedEvent">
                     <input type="radio" name="event" id="begin" autocomplete="off"> Начать
                 </label>
                 <label class="btn btn-secondary" v-on:click="eventBtn = 'end'" @click="checkedEvent">
                     <input type="radio" name="event" id="end" autocomplete="off"> Закончить
                 </label>
+                <label class="btn btn-secondary" v-on:click="eventBtn = 'continue'" @click="continueBtn" v-if="eventBtn !== 'begin'">
+                    <input type="radio" name="event" id="continue" autocomplete="off"> Продолжить
+                </label>
+                <label class="btn btn-secondary" @click="saveProgress" v-else>
+                    <input type="radio" name="event" id="progress" autocomplete="off"> Сохранить прогресс
+                </label>
             </div>
 
-            <div class="btn-group btn-group-toggle btn-m" data-toggle="buttons">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-secondary active" @click="typeWords = 1">
                     <input type="radio" name="options" id="words" autocomplete="off" :disabled="eventBtn === 'begin'"> Слова
                 </label>
@@ -34,6 +55,10 @@
                     <input type="radio" name="options" id="rules" autocomplete="off" :disabled="eventBtn === 'begin'"> Правила
                 </label>
             </div>
+        </div>
+
+        <div id="save-print" class="save-print successful" style="display:none">
+            <h4>Процесс сохранен!</h4>
         </div>
 
         <div id="get-word" class="get-word successful" v-if="eventBtn === 'begin'">
@@ -51,10 +76,13 @@
         </div>
 
         <div class="next-btn" v-if="eventBtn === 'begin'">
-            <button type="button" class="btn btn-dark" @click="printFrequency(0)" v-if="word.is_frequency === 1">
+            <button type="button" class="btn btn-dark" @click="notShow">
+                Не показывать больше
+            </button>
+            <button type="button" class="btn btn-dark btn-m" @click="printFrequency(0)" v-if="word.is_frequency === 1">
                 Выводить реже
             </button>
-            <button type="button" class="btn btn-dark" @click="printFrequency(1)" v-if="word.is_frequency === 0">
+            <button type="button" class="btn btn-dark btn-m" @click="printFrequency(1)" v-if="word.is_frequency === 0">
                 Выводить чаще
             </button>
             <button type="button" class="btn btn-dark btn-m" @click="nextWord">Следующее слово</button>
@@ -76,9 +104,40 @@ export default {
             word: null,
             language: null,
             typeWords: 1,
+            learnedWords: [],
         }
     },
     methods:{
+        continueBtn(){
+
+        },
+        async saveProgress(){
+            await words.dispatch('clearProgress')
+            document.getElementById('save-print').style.display = 'block'
+            setTimeout(function() {
+                document.getElementById('save-print').style.display = 'none'
+            }, (2000));
+            // console.log(this.learnedWords)
+            await words.dispatch('saveProgress', this.learnedWords)
+        },
+        async newBegin(){
+            this.nullWord()
+            this.myModal.hide()
+            let data = {
+                uri: 'learnWords',
+                typeWords: this.typeWords
+            }
+            await words.dispatch('fetchWords', data)
+            this.lists = words.getters.getWords
+            this.printWord()
+            await words.dispatch('clearProgress')
+            this.learnedWords = []
+        },
+        notShow(){
+            this.word.is_show = 0
+            words.dispatch('saveOneWord', this.word)
+            this.nextWord()
+        },
         printFrequency(value){
             this.word.is_frequency = value
             words.dispatch('saveOneWord', this.word)
@@ -98,21 +157,18 @@ export default {
                 in_russia: '',
             }
         },
-        async checkedEvent(){
+        checkedEvent(){
             document.getElementById('end-learn').style.display = 'none'
-            this.nullWord()
             if (this.eventBtn === 'end') {
+                this.nullWord()
                 this.lists = []
                 return
             }
 
-            let data = {
-                uri: 'learnWords',
-                typeWords: this.typeWords
-            }
-            await words.dispatch('fetchWords', data)
-            this.lists = words.getters.getWords
-            this.printWord()
+            this.myModal = new bootstrap.Modal(document.getElementById('myModal'), {
+                keyboard: false
+            })
+            this.myModal.show()
         },
         nextWord(){
             this.lists.splice(this.rand, 1)
@@ -145,10 +201,16 @@ export default {
                 this.rand = 0
                 this.word = this.lists[0]
             }
+
+            this.learnedWords.push(this.word.word_id)
         }
     },
-    mounted() {
+    async mounted() {
         document.getElementById('end-learn').style.display = 'none'
+        await words.dispatch('fetchProgress')
+        this.learnedWords = words.getters.getProgress
+        console.log('this.learnedWord')
+        console.log(this.learnedWords)
     }
 }
 </script>
@@ -161,7 +223,7 @@ export default {
     margin: 30px auto 0;
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
 }
 .get-word {
     margin: 8% auto;
@@ -192,5 +254,19 @@ export default {
 .transcription {
     color: #2d3748;
     font-size: 24px;
+}
+@media screen and (max-width: 1000px) {
+    .next-btn,
+    .choiceType{
+        display: flex;
+        flex-direction:column;
+        align-items: center;
+    }
+    .choiceType .btn-secondary{
+        margin: 0 0 5% 0;
+    }
+    .btn.btn-dark{
+        margin: 0 0 1% 0;
+    }
 }
 </style>
