@@ -20,15 +20,15 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Сохранить прогресс перед окончанием?</h5>
+                    <h5 class="modal-title">Сохранить прогресс</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Если вы начнете заного, тогда прошлый прогресс обнулится! Вы согласны на это?</p>
+                    <p>Сохранить прогресс перед окончанием?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
-                    <button type="button" class="btn btn-dark" v-on:click="eventBtn = 'begin'" @click="newBegin">Да</button>
+                    <button type="button" class="btn btn-secondary" v-on:click="eventBtn = 'end'" @click="endBtn" data-bs-dismiss="modal">Нет</button>
+                    <button type="button" class="btn btn-dark" v-on:click="eventBtn = 'end' && this.myEndModal.hide()" @click="saveProgress">Да</button>
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
                 <label class="btn btn-secondary" @click="modalEvent" v-else>
                     <input type="radio" name="event" id="begin" autocomplete="off"> Начать заного
                 </label>
-                <label class="btn btn-secondary" v-on:click="eventBtn = 'end'" @click="endBtn">
+                <label class="btn btn-secondary" @click="modalEndBtn" v-if="eventBtn === 'begin'">
                     <input type="radio" name="event" id="end" autocomplete="off"> Закончить
                 </label>
                 <label class="btn btn-secondary" v-on:click="eventBtn = 'begin'" @click="continueBtn" v-if="eventBtn !== 'begin' && learnedBtn > 0">
@@ -195,10 +195,16 @@ export default {
                 in_russia: '',
             }
         },
-        endBtn() {
+        endBtn(){
             document.getElementById('end-learn').style.display = 'none'
             this.nullWord()
             this.lists = []
+        },
+        modalEndBtn() {
+            this.myEndModal = new bootstrap.Modal(document.getElementById('myEndModal'), {
+                keyboard: false
+            })
+            this.myEndModal.show()
         },
         modalEvent(){
             this.myModal = new bootstrap.Modal(document.getElementById('myModal'), {
