@@ -25,7 +25,7 @@ class WordsController extends Controller
         if (!empty($data->search)) {
             $words = $words->whereRaw("words.in_english LIKE '%$data->search%' OR words.in_russia LIKE '%$data->search%'");
         } elseif (!empty($data->uri) && $data->uri == 'allWords' && empty($data->sort)) {
-            $words = $words->orderBy('words.in_english');
+            $words = $words->orderBy('words.updated_at', 'desc');
         } elseif(!empty($data->uri) && $data->uri == 'learnWords') {
             $words = $words->leftJoin('words_progress as wp', 'wp.word_progress_id', 'words.word_id')
                 ->where('words.is_show', 1)->whereRaw('words.word_id NOT IN (SELECT word_progress_id FROM words_progress)')
@@ -64,6 +64,7 @@ class WordsController extends Controller
 
     public function saveWords(Request $request): JsonResponse
     {
+//        print_r($request->all());
         for ($i = 0; $i < count($request->in_english); $i++) {
             if (empty($request->in_english[$i]) || empty($request->in_russia[$i])) {
                 continue;
@@ -80,6 +81,7 @@ class WordsController extends Controller
                 'in_english' => $request->in_english[$i],
                 'transcription' => $request->transcription[$i] ?? null,
                 'in_russia' => $request->in_russia[$i],
+                'word_type_id' => $request->word_type_id,
             ]);
         }
         return response()->json();

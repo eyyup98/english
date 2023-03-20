@@ -21,6 +21,12 @@
             </div>
         </div>
 
+        <div class="words-type successful" style="margin: 30px auto" v-if="viewInputs === true">
+            <select class="form-control form-inline" v-model="word_type_id">
+                <option v-for="item in types" :value="item.word_type_id">{{item.name}}</option>
+            </select>
+        </div>
+
         <div class="next-btn successful" style="margin: 30px auto" v-if="viewInputs === true">
             <button type="button" class="btn btn-success" @click="saveWords">Сохранить</button>
         </div>
@@ -47,12 +53,17 @@ export default {
             in_english: '',
             in_russia: '',
             transcription: '',
+            types: null,
+            word_type_id: 1,
         }
     },
     methods:{
+        async getTypes(){
+            await words.dispatch('fetchTypes')
+            this.types = words.getters.getTypes
+        },
         addWords(){
             this.viewInputs = true
-
         },
         saveWords(){
             this.viewInputs = null
@@ -88,31 +99,44 @@ export default {
                 return false
             }
 
+
+            console.log(this.word_type_id)
             const data = {
                 in_english: in_english,
                 in_russia: in_russia,
                 transcription: transcription,
+                word_type_id: this.word_type_id
             }
             words.dispatch('saveWords', data)
 
             this.viewInputs = false
         },
+    },
+    mounted() {
+        this.getTypes()
     }
 }
 </script>
 
 <style scoped>
+.container{
+    height: 120vh;
+}
+.words-type{
+    max-width: 20%;
+    margin: 0 auto;
+}
 .input-block{
     display: flex;
     font-size: 28px;
     padding: 0 50px;
     justify-content:space-between;
-    /*max-width: 200px;*/
-    /*flex-wrap: wrap;*/
 }
 .flex-input{
     border: #dddcdc solid 1px;
+    min-height: 40vh;
     height: 70vh;
+    max-height: 70vh;
     border-bottom: 2px solid #2d3748;
     text-align: left;
     max-width: 100%;

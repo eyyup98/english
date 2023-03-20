@@ -44,6 +44,7 @@ export const words = new Vuex.Store({
                 in_english: data.in_english,
                 in_russia: data.in_russia,
                 transcription: data.transcription,
+                word_type_id: data.word_type_id,
             }).catch((error) => {
                 console.log(error)
             })
