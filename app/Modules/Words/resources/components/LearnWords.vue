@@ -16,6 +16,23 @@
             </div>
         </div>
     </div>
+    <div class="modal" tabindex="-1" id="myEndModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Сохранить прогресс перед окончанием?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Если вы начнете заного, тогда прошлый прогресс обнулится! Вы согласны на это?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                    <button type="button" class="btn btn-dark" v-on:click="eventBtn = 'begin'" @click="newBegin">Да</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="choiceType">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -30,16 +47,19 @@
                 </label>
             </div>
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-secondary" @click="checkedEvent">
-                    <input type="radio" name="event" id="begin" autocomplete="off"> Начать
+                <label class="btn btn-secondary" v-on:click="eventBtn = 'begin'" @click="beginBtn" v-if="learnedBtn < 1">
+                    <input type="radio" name="event" id="newBegin" autocomplete="off"> Начать
                 </label>
-                <label class="btn btn-secondary" v-on:click="eventBtn = 'end'" @click="checkedEvent">
+                <label class="btn btn-secondary" @click="modalEvent" v-else>
+                    <input type="radio" name="event" id="begin" autocomplete="off"> Начать заного
+                </label>
+                <label class="btn btn-secondary" v-on:click="eventBtn = 'end'" @click="endBtn">
                     <input type="radio" name="event" id="end" autocomplete="off"> Закончить
                 </label>
-                <label class="btn btn-secondary" v-on:click="eventBtn = 'continue'" @click="continueBtn" v-if="eventBtn !== 'begin'">
+                <label class="btn btn-secondary" v-on:click="eventBtn = 'begin'" @click="continueBtn" v-if="eventBtn !== 'begin' && learnedBtn > 0">
                     <input type="radio" name="event" id="continue" autocomplete="off"> Продолжить
                 </label>
-                <label class="btn btn-secondary" @click="saveProgress" v-else>
+                <label class="btn btn-secondary" @click="saveProgress" v-if="eventBtn === 'begin'">
                     <input type="radio" name="event" id="progress" autocomplete="off"> Сохранить прогресс
                 </label>
             </div>
@@ -101,27 +121,47 @@ export default {
             eventBtn: null,
             lists: [],
             rand: null,
-            word: null,
+            word: this.nullWord,
             language: null,
             typeWords: 1,
             learnedWords: [],
+            learnedBtn: 0,
         }
     },
     methods:{
-        continueBtn(){
-
+        async continueBtn(){
+            let data = {
+                uri: 'learnWords',
+                typeWords: this.typeWords,
+                progress: this.learnedWords
+            }
+            await words.dispatch('fetchWords', data)
+            this.lists = words.getters.getWords
+            this.printWord()
         },
         async saveProgress(){
             await words.dispatch('clearProgress')
+            await words.dispatch('saveProgress', this.learnedWords)
+            this.learnedBtn = this.learnedWords.length
             document.getElementById('save-print').style.display = 'block'
             setTimeout(function() {
                 document.getElementById('save-print').style.display = 'none'
             }, (2000));
-            // console.log(this.learnedWords)
-            await words.dispatch('saveProgress', this.learnedWords)
+        },
+        async beginBtn(){
+            let data = {
+                uri: 'learnWords',
+                typeWords: this.typeWords
+            }
+            await words.dispatch('fetchWords', data)
+            this.lists = words.getters.getWords
+            this.printWord()
         },
         async newBegin(){
+            await words.dispatch('clearProgress')
+            this.learnedWords = []
             this.nullWord()
+            this.eventBtn = 'begin'
             this.myModal.hide()
             let data = {
                 uri: 'learnWords',
@@ -130,8 +170,6 @@ export default {
             await words.dispatch('fetchWords', data)
             this.lists = words.getters.getWords
             this.printWord()
-            await words.dispatch('clearProgress')
-            this.learnedWords = []
         },
         notShow(){
             this.word.is_show = 0
@@ -151,20 +189,18 @@ export default {
         },
         nullWord(){
             this.word = {
-                is_frequency: null,
+                is_frequency: 0,
                 in_english: '',
                 transcription: '',
                 in_russia: '',
             }
         },
-        checkedEvent(){
+        endBtn() {
             document.getElementById('end-learn').style.display = 'none'
-            if (this.eventBtn === 'end') {
-                this.nullWord()
-                this.lists = []
-                return
-            }
-
+            this.nullWord()
+            this.lists = []
+        },
+        modalEvent(){
             this.myModal = new bootstrap.Modal(document.getElementById('myModal'), {
                 keyboard: false
             })
@@ -202,15 +238,14 @@ export default {
                 this.word = this.lists[0]
             }
 
-            this.learnedWords.push(this.word.word_id)
+            this.learnedWords.push({word_progress_id: this.word.word_id})
         }
     },
     async mounted() {
         document.getElementById('end-learn').style.display = 'none'
         await words.dispatch('fetchProgress')
         this.learnedWords = words.getters.getProgress
-        console.log('this.learnedWord')
-        console.log(this.learnedWords)
+        this.learnedBtn = this.learnedWords.length
     }
 }
 </script>
@@ -255,6 +290,11 @@ export default {
     color: #2d3748;
     font-size: 24px;
 }
+.save-print {
+    position: absolute;
+    width: 100%;
+    margin: 2% auto;
+}
 @media screen and (max-width: 1000px) {
     .next-btn,
     .choiceType{
@@ -267,6 +307,9 @@ export default {
     }
     .btn.btn-dark{
         margin: 0 0 1% 0;
+    }
+    .save-print {
+        margin: 1% auto;
     }
 }
 </style>

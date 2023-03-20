@@ -27,8 +27,8 @@ class WordsController extends Controller
         } elseif (!empty($data->uri) && $data->uri == 'allWords' && empty($data->sort)) {
             $words = $words->orderBy('words.in_english');
         } elseif(!empty($data->uri) && $data->uri == 'learnWords') {
-            $words = $words->join('words_progress as wp', 'wp.word_progress_id', 'words.word_id')
-                ->where('words.is_show', 1)->where('wp.word_progress_id', '!=', 'words.word_id')
+            $words = $words->leftJoin('words_progress as wp', 'wp.word_progress_id', 'words.word_id')
+                ->where('words.is_show', 1)->whereRaw('words.word_id NOT IN (SELECT word_progress_id FROM words_progress)')
                 ->orderBy('words.is_frequency', 'desc')->inRandomOrder();
         }
 
@@ -102,9 +102,8 @@ class WordsController extends Controller
 
     public function saveProgress(Request $request): bool
     {
-        print_r($request->data);
         foreach ($request->data as $value) {
-            WordsProgress::create(['word_progress_id' => $value]);
+            WordsProgress::create(['word_progress_id' => $value['word_progress_id']]);
         }
 
         return true;

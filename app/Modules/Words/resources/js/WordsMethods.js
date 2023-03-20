@@ -78,7 +78,6 @@ export const words = new Vuex.Store({
             })
         },
         saveProgress({state, commit}, list){
-            console.log(list)
             return axios.post('/saveProgress', {
                 data: list
             })
