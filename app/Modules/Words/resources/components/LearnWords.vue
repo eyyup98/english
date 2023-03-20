@@ -133,7 +133,6 @@ export default {
             let data = {
                 uri: 'learnWords',
                 typeWords: this.typeWords,
-                progress: this.learnedWords
             }
             await words.dispatch('fetchWords', data)
             this.lists = words.getters.getWords
