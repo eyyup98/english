@@ -20,6 +20,11 @@
 
     <div class="container">
 
+        <div class="words-info">
+            <span>Все слова: {{info.allWords}}</span>
+            <span>На показе: {{info.showWords}}</span>
+        </div>
+
         <div class="form-inline my-2 my-lg-0 search">
             <x-field>
                 <input class="form-control mr-sm-2" type="search" v-on:keyup.enter="getData"
@@ -100,6 +105,7 @@ export default {
             deleteId: null,
             myModal: null,
             types: null,
+            info: {allWords: null, showWords: null},
             sortList: [],
         }
     },
@@ -188,15 +194,28 @@ export default {
             await words.dispatch('fetchTypes')
             this.types = words.getters.getTypes
         },
+        async getInfo(){
+            await words.dispatch('fetchInfo')
+            this.info = words.getters.getInfo
+            console.log(this.info)
+        },
     },
     mounted() {
         this.getData()
         this.getTypes()
+        this.getInfo()
     }
 }
 </script>
 
 <style scoped>
+.words-info{
+    position: absolute;
+    margin: 3% 0 0 0;
+    color: #b5b5b5;
+    display: flex;
+    flex-direction:column;
+}
 .div-table{
     max-height: 80vh;
     overflow-y: auto;
@@ -268,6 +287,29 @@ export default {
 @media screen and (max-width: 580px) {
     .btn-dark{
         margin: 0 0 0 10px;
+    }
+}
+@media screen and (max-width: 1000px) {
+    .words-info {
+        margin: 6% 0 0 0;
+    }
+}
+@media screen and (max-width: 770px) {
+    .words-info {
+        display: flex;
+        justify-content: left;
+        flex-direction:row;
+        margin: 20% 0 0 0;
+    }
+}
+@media screen and (max-width: 470px) {
+    .words-info {
+        margin: 25% 0 0 0;
+    }
+}
+@media screen and (max-width: 385px) {
+    .words-info {
+        margin: 40% 0 0 0;
     }
 }
 </style>

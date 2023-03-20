@@ -12,6 +12,7 @@ export const words = new Vuex.Store({
             types: null,
             words: null,
             progress: null,
+            info: null,
         }
     },
     actions: {
@@ -36,6 +37,13 @@ export const words = new Vuex.Store({
             return axios.get('/getProgress')
                 .then((response) => {
                     commit('setProgress',response.data);
+                    return response.data
+                })
+        },
+        fetchInfo({state, commit}){
+            return axios.get('/getInfo')
+                .then((response) => {
+                    commit('setInfo',response.data);
                     return response.data
                 })
         },
@@ -93,6 +101,9 @@ export const words = new Vuex.Store({
         },
         setProgress(state, value){
             state.progress = value
+        },
+        setInfo(state, value){
+            state.info = value
         }
     },
     getters: {
@@ -104,6 +115,9 @@ export const words = new Vuex.Store({
         },
         getProgress(state){
             return state.progress;
+        },
+        getInfo(state){
+            return state.info;
         }
     }
 })

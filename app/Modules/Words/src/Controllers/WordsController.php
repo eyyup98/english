@@ -25,7 +25,7 @@ class WordsController extends Controller
         if (!empty($data->search)) {
             $words = $words->whereRaw("words.in_english LIKE '%$data->search%' OR words.in_russia LIKE '%$data->search%'");
         } elseif (!empty($data->uri) && $data->uri == 'allWords' && empty($data->sort)) {
-            $words = $words->orderBy('words.updated_at', 'desc');
+            $words = $words->orderBy('words.created_at', 'desc');
         } elseif(!empty($data->uri) && $data->uri == 'learnWords') {
             $words = $words->leftJoin('words_progress as wp', 'wp.word_progress_id', 'words.word_id')
                 ->where('words.is_show', 1)->whereRaw('words.word_id NOT IN (SELECT word_progress_id FROM words_progress)')
@@ -36,6 +36,7 @@ class WordsController extends Controller
             foreach ($data->sort as $sort) {
                 $words = $words->orderBy("words.$sort->sort", $sort->sParam);
             }
+            $words = $words->orderBy('words.updated_at', 'desc');
         }
 
         if (!empty($data->typeWords)) {
@@ -49,6 +50,15 @@ class WordsController extends Controller
     public function getProgress(): JsonResponse
     {
         return response()->json(WordsProgress::all());
+    }
+
+    public function getInfo(): JsonResponse
+    {
+        $data = [
+            'allWords' => Words::all()->count(),
+            'showWords' => Words::where('is_show', 1)->get()->count(),
+        ];
+        return response()->json($data);
     }
 
     public function getTypes(): JsonResponse
