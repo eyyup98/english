@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-{{--        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">--}}
+        <!--<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">-->
         <title>Laravel</title>
 
         <!-- Fonts -->
@@ -24,6 +24,12 @@
     </head>
     <body class="antialiased">
     <div id="app" style="margin: 0; padding: 0">
+        <div class="message" id="message">
+            <div class="message-flex">
+                <span class="message-title" id="message-title"></span>
+                <span class="message-text" id="message-text"></span>
+            </div>
+        </div>
         <p style="padding: 0; margin: 0">
             <router-link to="/"></router-link>
             <router-link to="/addWords"></router-link>
@@ -83,6 +89,35 @@
         position:absolute;
         padding:7px 20px;
         right:0;
+    }
+    .message{
+        display: none;
+        position: absolute;
+        right: 7%;
+        top: 100px;
+        /*font-size: 60px;*/
+        min-height: 10%;
+        min-width: 20%;
+        max-width: 40%;
+        padding: 5px 10px;
+        background-color: rgba(222, 147, 147, 0.98);
+        border-radius: 2px;
+        -webkit-box-shadow: 1px 0px 15px 1px rgba(87, 108, 93, 0.63);
+        -moz-box-shadow: 1px 0px 15px 1px rgba(87, 108, 93, 0.63);
+        box-shadow: 1px 0px 15px 1px rgba(87, 108, 93, 0.63);
+    }
+    .message-flex{
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+    }
+    .message-title{
+        font-size: 24px;
+
+    }
+    .message-text{
+        font-size: 20px;
+
     }
     @keyframes showLeft {
         from {left:-100%;}

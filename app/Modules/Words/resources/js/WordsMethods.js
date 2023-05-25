@@ -1,9 +1,27 @@
 import {createApp} from 'vue';
 import Vuex from 'vuex';
+import {message} from "./MessageMethods"
 
 const app = createApp({})
 
 app.use(Vuex)
+
+
+let dataSuccess = {
+    title: 'Сохранено',
+        text: 'Сохранение прошло успешно',
+        type: 'success'
+}
+let dataError = {
+    title: 'Ошибка',
+        text: 'Ошибка при созранении',
+        type: 'error'
+}
+let dataDelete = {
+    title: 'Удалено',
+        text: 'Удаление прошло успешно',
+        type: 'success'
+}
 
 export const words = new Vuex.Store({
     state: {
@@ -53,21 +71,27 @@ export const words = new Vuex.Store({
                 in_russia: data.in_russia,
                 transcription: data.transcription,
                 word_type_id: data.word_type_id,
+            }).then((response) => {
+                message.dispatch('fetchMessage', 'dataSuccess')
             }).catch((error) => {
+                message.dispatch('fetchMessage', 'dataError')
                 console.log(error)
             })
         },
         deleteWord({state, commit}, deleteId){
             return axios.post('/deleteWord', {
                 deleteId: deleteId,
+            }).then((response) => {
+                message.dispatch('fetchMessage', state.dataDelete)
             }).catch((error) => {
+                message.dispatch('fetchMessage', state.dataError)
                 console.log(error)
             })
         },
         clearProgress() {
             return axios.get('/clearProgress')
         },
-        saveOneWord({state, commit}, data){
+        saveOneWord({state}, data){
             let result = false
             return axios.put('/saveOneWord', {
                 word_id: data.word_id,
@@ -78,9 +102,11 @@ export const words = new Vuex.Store({
                 is_show: data.is_show,
                 is_frequency: data.is_frequency,
             }).then((response) => {
+                message.dispatch('fetchMessage', dataSuccess)
                 result = 'true'
                 return result
             }).catch((error) => {
+                message.dispatch('fetchMessage', 'dataError')
                 console.log(error)
                 result = 'false'
                 return result

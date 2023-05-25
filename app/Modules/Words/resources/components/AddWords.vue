@@ -2,7 +2,7 @@
     <NavBar></NavBar>
 
     <div class="container">
-        <div class="next-btn" style="margin: 30px auto">
+        <div class="next-btn" style="margin: 30px auto" v-if="viewInputs === false">
             <button type="button" class="btn btn-dark" @click="addWords">Добавить слова</button>
         </div>
 
@@ -49,7 +49,7 @@ export default {
     },
     data(){
         return {
-            viewInputs: null,
+            viewInputs: true,
             in_english: '',
             in_russia: '',
             transcription: '',
@@ -120,7 +120,7 @@ export default {
 
 <style scoped>
 .container{
-    height: 120vh;
+    height: 100vh;
 }
 .words-type{
     max-width: 20%;
@@ -129,14 +129,14 @@ export default {
 .input-block{
     display: flex;
     font-size: 28px;
-    padding: 0 50px;
+    padding: 50px 50px 0 50px;
     justify-content:space-between;
 }
 .flex-input{
     border: #dddcdc solid 1px;
-    min-height: 40vh;
-    height: 70vh;
-    max-height: 70vh;
+    min-height: 30vh;
+    height: 40vh;
+    max-height: 55vh;
     border-bottom: 2px solid #2d3748;
     text-align: left;
     max-width: 100%;

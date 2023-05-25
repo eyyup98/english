@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class SearchCitiesController extends Controller
 {
-    public function searchCity(Request $request): JsonResponse
-    {
-        $cities = DB::select("SELECT name FROM cities WHERE name LIKE '$request->city%' ORDER BY name");
-        return response()->json(!empty($cities) ? $cities : [0 => ['name' => 'Город не найден']]);
-    }
+//    public function searchCity(Request $request): JsonResponse
+//    {
+//        $cities = DB::select("SELECT name FROM cities WHERE name LIKE '$request->city%' ORDER BY name");
+//        return response()->json(!empty($cities) ? $cities : [0 => ['name' => 'Город не найден']]);
+//    }
 
 }

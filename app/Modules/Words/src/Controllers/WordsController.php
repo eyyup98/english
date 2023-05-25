@@ -21,7 +21,7 @@ class WordsController extends Controller
     public function getWords(Request $request): JsonResponse
     {
         $data = json_decode($request->data);
-        $words = Words::join('words_types as wt', 'wt.word_type_id', 'words.word_type_id');
+        $words = Words::query()->join('words_types as wt', 'wt.word_type_id', 'words.word_type_id');
         if (!empty($data->search)) {
             $words = $words->whereRaw("words.in_english LIKE '%$data->search%' OR words.in_russia LIKE '%$data->search%'");
         } elseif (!empty($data->uri) && $data->uri == 'allWords' && empty($data->sort)) {
@@ -56,7 +56,7 @@ class WordsController extends Controller
     {
         $data = [
             'allWords' => Words::all()->count(),
-            'showWords' => Words::where('is_show', 1)->get()->count(),
+            'showWords' => Words::query()->where('is_show', 1)->get()->count(),
         ];
         return response()->json($data);
     }
@@ -68,26 +68,25 @@ class WordsController extends Controller
 
     public function clearProgress(Request $request): bool
     {
-        WordsProgress::truncate();
+        WordsProgress::query()->truncate();
         return true;
     }
 
     public function saveWords(Request $request): JsonResponse
     {
-//        print_r($request->all());
         for ($i = 0; $i < count($request->in_english); $i++) {
             if (empty($request->in_english[$i]) || empty($request->in_russia[$i])) {
                 continue;
             }
 
-            $existEnglish = Words::where('in_english', $request->in_english[$i])->first();
-            $existRussia = Words::where('in_russia', $request->in_russia[$i])->first();
+            $existEnglish = Words::query()->where('in_english', $request->in_english[$i])->first();
+            $existRussia = Words::query()->where('in_russia', $request->in_russia[$i])->first();
 
             if(!empty($existEnglish) && !empty($existRussia)) {
                 continue;
             }
 
-            Words::create([
+            Words::query()->create([
                 'in_english' => $request->in_english[$i],
                 'transcription' => $request->transcription[$i] ?? null,
                 'in_russia' => $request->in_russia[$i],
@@ -99,7 +98,7 @@ class WordsController extends Controller
 
     public function saveOneWord(Request $request): JsonResponse
     {
-        Words::where('word_id', $request->word_id)
+        Words::query()->where('word_id', $request->word_id)
             ->update([
                 'in_english' => $request->in_english,
                 'transcription' => $request->transcription,
@@ -115,7 +114,7 @@ class WordsController extends Controller
     public function saveProgress(Request $request): bool
     {
         foreach ($request->data as $value) {
-            WordsProgress::create(['word_progress_id' => $value['word_progress_id']]);
+            WordsProgress::query()->create(['word_progress_id' => $value['word_progress_id']]);
         }
 
         return true;
@@ -123,7 +122,7 @@ class WordsController extends Controller
 
     public function deleteWord(Request $request): JsonResponse
     {
-        Words::where('word_id', $request->deleteId)->delete();
+        Words::query()->where('word_id', $request->deleteId)->delete();
 
         return response()->json();
     }

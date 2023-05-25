@@ -38,16 +38,27 @@
             <table class="table table-success table-striped table-hover params">
                 <thead class="table-dark sticky" >
                     <tr>
+                        <th scope="col" class="text">Действия</th>
                         <th id="in_english" @click="sortMethod('in_english')" scope="col" class="text width delete">Английский</th>
                         <th id="transcription" @click="sortMethod('transcription')" scope="col" class=" delete">Транскрипция/Доп.инф.</th>
                         <th id="in_russia" @click="sortMethod('in_russia')" scope="col" class="text width delete">Русский</th>
                         <th id="word_type_id" @click="sortMethod('word_type_id')" scope="col" class="text delete">Тип</th>
                         <th id="is_show" @click="sortMethod('is_show')" scope="col" class="text delete">Показывать</th>
-                        <th scope="col" class="text">Действия</th>
+                        <th id="is_frequency" @click="sortMethod('is_frequency')" scope="col" class="text delete">Выводить чаще</th>
                     </tr>
                 </thead>
                 <tbody class="table-body" v-for="(row, index) in lists">
                     <tr>
+                        <th v-if="count[index].status_show === 'show'">
+                            <i class="bi-trash3-fill hover" aria-label="Mute" @click="deleteBtn(index)"
+                               data-toggle="modal" data-target="#exampleModal"></i>
+                            <i class="bi-pencil-fill hover" aria-label="Mute" @click="editBtn(index)"></i>
+                        </th>
+                        <th v-else>
+                            <i class="bi-x-square-fill hover" aria-label="Mute" @click="cancelBtn(index)"></i>
+                            <i class="bi-save-fill hover" aria-label="Mute" @click="saveBtn(index)"></i>
+                        </th>
+
                         <th v-if="count[index].status_show === 'show'">{{ row.in_english }}</th>
                         <th v-else><input class="form-control" v-model="row.in_english"></th>
 
@@ -65,21 +76,17 @@
                         </th>
 
                         <th v-if="row.is_show === 1">
-                            <i class="bi-check-circle hover" aria-label="Mute" @dblclick="saveBtn(index, true)"></i>
-                        </th>
-
-                        <th v-else>
-                            <i class="bi-x-circle hover" aria-label="Mute" @dblclick="saveBtn(index, true)"></i>
-                        </th>
-
-                        <th v-if="count[index].status_show === 'show'">
-                            <i class="bi-pencil-fill hover" aria-label="Mute" @click="editBtn(index)"></i>
-                            <i class="bi-trash3-fill hover" aria-label="Mute" @click="deleteBtn(index)"
-                               data-toggle="modal" data-target="#exampleModal"></i>
+                            <i class="bi-check-circle hover" aria-label="Mute" @dblclick="this.lists[index].is_show = 0; saveBtn(index)"></i>
                         </th>
                         <th v-else>
-                            <i class="bi-x-square-fill hover" aria-label="Mute" @click="cancelBtn(index)"></i>
-                            <i class="bi-save-fill hover" aria-label="Mute" @click="saveBtn(index)"></i>
+                            <i class="bi-x-circle hover" aria-label="Mute" @dblclick="this.lists[index].is_show = 1; saveBtn(index)"></i>
+                        </th>
+
+                        <th v-if="row.is_frequency === 1">
+                            <i class="bi-check-circle hover" aria-label="Mute" @dblclick="this.lists[index].is_frequency = 0; saveBtn(index)"></i>
+                        </th>
+                        <th v-else>
+                            <i class="bi-x-circle hover" aria-label="Mute" @dblclick="this.lists[index].is_frequency = 1; saveBtn(index)"></i>
                         </th>
                     </tr>
                 </tbody>
@@ -155,15 +162,7 @@ export default {
                 this.count[i].status_show = 'show'
             }
         },
-        async saveBtn(index, changeShow = false) {
-            if (changeShow === true){
-                if (this.lists[index].is_show === 1) {
-                    this.lists[index].is_show = 0
-                } else {
-                    this.lists[index].is_show = 1
-                }
-            }
-
+        async saveBtn(index) {
             await words.dispatch('saveOneWord', this.lists[index])
             for (let i = 0; i < this.lists.length; i++) {
                 this.count[i].status_show = 'show'
